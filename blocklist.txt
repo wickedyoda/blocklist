@@ -1,0 +1,97 @@
+# ============================================================
+# blocklist.txt — domains to BLOCK at the DNS level
+# Format: one domain per line. Lines starting with # are ignored.
+# Covers: telemetry, ad networks, tracking pixels, malware C2.
+# Apply via Pi-hole / AdGuard Home / dnsmasq / Unbound.
+# ============================================================
+
+# --- Telemetry / analytics ---
+device-metrics-us.amazon.com
+da.mmarket.com
+settings.crashlytics.com
+telemetry.samsungdm.com
+graph.crxsvc.samsungosp.com
+e.crashlytics.com
+setting-crashlytics.com.na1.hipadjust.com
+api.featureloggames.samsung.cn
+adinfo.ra1.xlmc.sec.miui.com
+logagent-ams.pandora.com
+event.ksosoft.com
+dc.services.visualstudio.com
+mobile.pipe.aria.microsoft.com
+settings-win.data.microsoft.com
+vortex.data.microsoft.com
+umeng.com
+cn.www.umedata.com
+samsungotn.net
+
+# --- Ad networks ---
+doubleclick.net
+googleadservices.com
+googlesyndication.com
+adservice.google.com
+google-analytics.com
+googletagmanager.com
+googletagservices.com
+adnxs.com
+pubmatic.com
+openx.net
+rubiconproject.com
+taboola.com
+outbrain.com
+criteo.com
+criteo.net
+adsafeprotected.com
+moatads.com
+ads-twitter.com
+flurry.com
+inmobi.com
+chartboost.com
+unity3d.com
+game.integrate.webeye.com
+
+# --- Tracking / fingerprinting ---
+scorecardresearch.com
+quantserve.com
+exelator.com
+krxd.net
+demdex.net
+bluekai.com
+liveramp.com
+everesttech.net
+segment.io
+segment.com
+mixpanel.com
+mparticle.com
+branch.io
+appsflyer.com
+adjust.com
+adjust.net.in
+singular.net
+tune.com
+kochava.com
+inrix.com
+
+# --- Known malware / phishing feed (sample) ---
+4p3rm3d4b4b07a.in
+abudantir.com
+antiwtw.org
+bakmansijin.net
+bestshopeoffers.net
+bityard.net
+bitdefender-ac.ru
+downloadalp.net
+emotet-binary.com
+fakealertsite.xyz
+
+# --- Spam / exploit kits ---
+19229.com
+1921681101static.us
+247realmedia.com
+am15.net
+antibot-v4.info
+artman-group.com
+awempire.com
+b92ee78a22459811.com
+bablace.com
+baserepository.work

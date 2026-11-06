@@ -1,0 +1,43 @@
+# ============================================================
+# allowlist.txt — domains that must NEVER be blocked
+# Format: one domain per line. Lines starting with # are ignored.
+# These override blocklist rules (whitelist) in Pi-hole /
+# AdGuard Home. Add any domain here that a blocklist falsely
+# flags as an ad/tracker but you actually need.
+# ============================================================
+
+# --- Core infrastructure ---
+google.com
+cloudflare.com
+one.one.one.one
+dns.google
+github.com
+githubusercontent.com
+
+# --- Streaming / smart home (often false-flagged) ---
+plex.tv
+app.plex.tv
+discovery.com
+discoveryplus.com
+dmm.co.jp
+hulu.com
+hotstar.com
+disneyplus.com
+primevideo.com
+vudu.com
+
+# --- Ad-related domains you may intentionally need ---
+# (uncomment / extend as required)
+doubleclick.net
+
+# --- DNS / CDN exceptions ---
+cdn.jsdelivr.net
+unpkg.com
+raw.githubusercontent.com
+
+# --- Network / ISP portals ---
+192.168.1.1.sslip.io
+my-router.local
+
+# --- Home lab overrides (examples) ---
+home.arpa
