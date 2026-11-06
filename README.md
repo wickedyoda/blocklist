@@ -6,50 +6,65 @@ Simple TXT files holding DNS domain lists for network-level ad, tracker, and mal
 
 | File | Purpose |
 |------|---------|
-| [`blocklist.txt`](blocklist.txt) | Domains to **block** (telemetry, ad networks, tracking, malware/phishing, spam) |
-| [`allowlist.txt`](allowlist.txt) | Domains to **never block** — overrides block rules (whitelist) |
+| [`blocklist.txt`](blocklist.txt) | **~163,000 domains to block** — base list built from curated upstream feeds (below) |
+| [`allowlist.txt`](allowlist.txt) | Domains to **never block** — overrides block rules (whitelist); the build subtracts these |
+| [`scripts/build.sh`](scripts/build.sh) | Regenerates `blocklist.txt` from the upstream sources |
+
+## Where the list comes from
+
+`blocklist.txt` is the deduplicated union of two reputable feeds:
+
+1. **StevenBlack/hosts + fakenews extension** — ad, tracking, malware, and fakenews domains merged from vetted sources.
+   https://github.com/StevenBlack/hosts
+2. **HaGeZi Multi LIGHT (onlydomains)** — size-optimized basic protection covering ads, trackers, metrics, telemetry, and some badware; built only from domains appearing in the Top 1M/10M lists.
+   https://github.com/hagezi/dns-blocklists
+
+Build process: fetch both → normalize to bare lowercase domains → validate → union + `sort -u` → subtract anything on `allowlist.txt`. Reproduce anytime with `scripts/build.sh`.
 
 ## Usage
 
-Point your DNS blocker at the raw URLs:
+Point your DNS blocker at the raw URL:
 
 ```
 https://raw.githubusercontent.com/wickedyoda/blocklist/main/blocklist.txt
-https://raw.githubusercontent.com/wickedyoda/blocklist/main/allowlist.txt
 ```
 
+`allowlist.txt` is consumed by `scripts/build.sh` as a subtraction list; feed its entries into your blocker's whitelist feature as well if you add custom sources later.
+
 ### Pi-hole
-- **Settings → Blocklist → Add**: paste the `blocklist.txt` URL.
-- **Whitelist (allowlist)**: add each domain from `allowlist.txt` under *Domains allowlisting*, or bulk-import via `pihole addlist`.
+- **Settings → Blocklist → Add a blocklist**: paste the `blocklist.txt` URL.
+- Whitelist: add `allowlist.txt` domains under *Domains allowlisting* (Pi-hole's whitelist overrides blocklists natively).
 
 ### AdGuard Home
 - **Filters → DNS blocklists → Add a blocklist**: paste the `blocklist.txt` URL.
-- **Settings → DNS rewrites / Allowlist**: paste `allowlist.txt` entries.
+- **Filters → Custom filtering rules**: add `||domain^$important` per allowlist entry — `$important` beats block rules.
 
 ### dnsmasq
 ```bash
-# /etc/dnsmasq.d/blocklist.conf
-address=/doubleclick.net/0.0.0.0    # one line per domain, or generate from the file:
-conf-file=/etc/dnsmasq.d/generated-blocklist.txt
+# Generate per-domain address lines from the list:
+awk '!/^#/ && NF {print "address=/" $1 "/0.0.0.0"}' blocklist.txt > /etc/dnsmasq.d/blocklist.conf
 ```
-Generate: `awk '{print "address=/" $1 "/0.0.0.0"}' blocklist.txt > generated-blocklist.txt`
 
 ### Unbound
-```yaml
-# /etc/unbound/unbound.conf.d/blocklist.conf
-local-zone: "doubleclick.net" always_refuse   # one entry per domain
+```bash
+# Generate local-zone entries:
+awk '!/^#/ && NF {print "local-zone: \"" $1 "\" always_refuse"}' blocklist.txt > /etc/unbound/unbound.conf.d/blocklist.conf
 ```
 
 ## Format rules
 
 - One domain per line — **no** `0.0.0.0` prefixes, **no** wildcards, **no** URLs/paths.
 - `#` starts a comment.
-- Subdomains inherit the parent block in most resolvers when the parent is listed as a zone.
+- In zone-style resolvers (AdGuard, Unbound local-zone), a listed domain also catches its subdomains.
+
+## Size note
+
+The file is ~3.4 MB. Pi-hole, AdGuard Home, Unbound, and dnsmasq handle it fine; very small/embedded resolvers may prefer the HaGeZi LIGHT list alone.
 
 ## Contributing
 
-Changes to `main` require a pull request (branch protection is enforced). Keep edits minimal: one domain per line, grouped under a section comment.
+Changes to `main` must go through a pull request (enforced for everyone, including admins). Edit `allowlist.txt` or the sources, run `scripts/build.sh`, and open a PR — don't hand-edit `blocklist.txt`; it is a generated artifact.
 
 ## Caveat emptor
 
-The malware/phishing/spam entries are illustrative samples. Treat this as a starter list — curate it against your own traffic, and expect the odd false positive (hence the allowlist).
+Both upstream feeds are curated to minimize false positives, but no list is perfect — expect the odd over-block, which is exactly what the allowlist and the PR flow are for.
